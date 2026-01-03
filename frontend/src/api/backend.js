@@ -1,10 +1,11 @@
 export function getNextStep() {
   return {
-    soil_moisture: 62,
+    soil_moisture: Math.random() * 10,
     heat_stress: 28,
     rainfall: 10,
     crop_stage: "Vegetative",
-    irrigation_mm: 18.2,
+    crop_height: Math.random() * 10,
+    irrigation_mm: 15 + Math.random() * 10,
     explanation: [
       "Soil moisture is moderate",
       "Heat stress is increasing",
