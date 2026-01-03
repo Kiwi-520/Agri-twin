@@ -1,5 +1,5 @@
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 
 class AgriTwinEnv(gym.Env):
@@ -39,10 +39,10 @@ class AgriTwinEnv(gym.Env):
         )
 
         # Internal (real-world) state
-        self.reset()
+        self.reset(seed = None)
     
 
-    def reset(self, seed=None, options = None):
+    def reset(self, *, seed=None, options = None):
         super().reset(seed = seed)
         
          # Internal (real-world) state
@@ -65,7 +65,10 @@ class AgriTwinEnv(gym.Env):
 
     def step(self, action):
         # Convert normalized action to irrigation in mm
-        irrigation_mm = float(action[0])
+        if isinstance(action, (np.ndarray, list)):
+            irrigation_mm = float(action[0])
+        else:
+            irrigation_mm = float(action)
         self.rainfall = np.random.uniform(0.0, 0.2)
 
         # Simple water balance
@@ -117,5 +120,5 @@ class AgriTwinEnv(gym.Env):
         }
 
         return observation, reward, terminated, truncated, info
-
-        
+    
+    
