@@ -1,0 +1,15 @@
+# Core RL & Environment
+gymnasium==0.29.1
+stable-baselines3==2.2.1
+
+# Numerical computing
+numpy==1.26.4
+
+# Plotting (for reward curves & demo visuals)
+matplotlib==3.8.2
+
+# Logging & utilities
+tensorboard==2.15.1
+
+# Optional (but recommended for clean warnings)
+cloudpickle==3.0.0
