@@ -3,6 +3,8 @@ import { getNextStep } from "../api/backend";
 import ActionCard from "../components/ActionCard";
 import StepButton from "../components/StepButton";
 import IrrigationChart from "../components/IrrigationChart";
+import DigitalTwin from "../components/DigitalTwin";
+
 
 function Simulation() {
   const [data, setData] = useState(null);
@@ -31,6 +33,13 @@ function Simulation() {
       {data && <ActionCard irrigation={data.irrigation_mm} />}
 
       {history.length > 0 && <IrrigationChart data={history} />}
+
+      {data && (
+        <DigitalTwin
+          soilMoisture={data.soil_moisture / 100}
+          cropStage={data.crop_height}
+        />
+      )}
     </div>
   );
 }
