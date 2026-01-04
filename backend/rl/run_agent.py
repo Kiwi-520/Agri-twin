@@ -28,7 +28,7 @@ def explain_action(obs, action):
 
 env = AgriTwinEnv()
 
-model_path = "C:/Users/disha/Disha/Projects/Agri-twin/Agri-twin/backend/models/ppo_agritwin_demo_v4.zip"
+model_path = "C:/Users/disha/Disha/Projects/Agri-twin/Agri-twin/backend/models/ppo_agritwin_demo_v3.zip"
 model = PPO.load(model_path, env = env)
 
 obs, info = env.reset()

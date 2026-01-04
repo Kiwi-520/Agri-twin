@@ -14,32 +14,34 @@ function Simulation() {
   const [explanations, setExplanations] = useState([]);
 
   const runSimulation = async () => {
-    const next = await getNextStep();
+    const next = await getNextStep(); // fetches from backend
     const nextStep = step + 1;
 
     setStep(nextStep);
     setData(next);
 
-    // irrigation history
+    // Update irrigation history
     setHistory((prev) => [
       ...prev,
       { step: nextStep, irrigation: next.irrigation_mm },
     ]);
 
-    // explanation logic (human readable)
+    // Build explanations from backend data
     const exp = [];
 
-    if (next.soil_moisture < 0.4)
-      exp.push("Soil moisture is low → irrigation needed");
+    // Use irrigation_reason directly from backend
+    if (next.irrigation_reason) {
+      exp.push(`💧 Irrigation: ${next.irrigation_reason}`);
+    }
 
-    if (next.heat_stress > 0.3)
-      exp.push("Heat stress detected → cooling via irrigation");
+    // Fertilizer advice
+    if (next.fertilizer) {
+      exp.push(`🌱 Fertilizer advice: ${next.fertilizer}`);
+    }
 
-    if (next.rainfall > 0.05)
-      exp.push("Rainfall present → irrigation reduced");
-
-    exp.push(`Fertilizer advice: ${next.fertilizer}`);
-    exp.push(next.fertilizer_reason);
+    if (next.fertilizer_reason) {
+      exp.push(next.fertilizer_reason);
+    }
 
     setExplanations(exp);
   };
@@ -63,9 +65,7 @@ function Simulation() {
         </>
       )}
 
-      {history.length > 0 && (
-        <IrrigationChart data={history} />
-      )}
+      {history.length > 0 && <IrrigationChart data={history} />}
     </div>
   );
 }

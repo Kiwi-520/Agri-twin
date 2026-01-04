@@ -4,6 +4,7 @@ import numpy as np
 
 from backend.rl.agritwin_env import AgriTwinEnv
 from backend.rl.fertilizer_advisory import fertilizer_advisory
+from backend.rl.irrigation_explain import explain_irrigation
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow everything for dev
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,6 +55,8 @@ def step_simulation():
         crop_stage=obs[3]
     )
 
+    irrigation_reason = explain_irrigation(obs, action)
+
     return{
         "soil_moisture": float(obs[0]),
         "heat_stress": float(obs[1]),
@@ -63,5 +66,6 @@ def step_simulation():
         "reward": float(reward),
         "fertilizer": fertilizer_info["fertilizer"],
         "fertilizer_reason": fertilizer_info["reason"],
+        "irrigation_reason": irrigation_reason,
         "done": bool(terminated or truncated)
     }
