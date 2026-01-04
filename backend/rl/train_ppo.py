@@ -2,6 +2,7 @@ from agritwin_env import AgriTwinEnv
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3 import PPO
 import numpy as np
+import os
 
 env = make_vec_env(AgriTwinEnv, n_envs = 1)
 state = env.reset()
@@ -23,6 +24,8 @@ model = PPO(
 )
 
 model.learn(total_timesteps = 100_000)
-model.save("ppo_agritwin")
+save_path = os.path.join(os.path.dirname(__file__), "../models/ppo_agritwin")
+model.save(save_path)
+print(f"PPO model saved successfully at {save_path}.zip!")
 
 print(model.policy)
