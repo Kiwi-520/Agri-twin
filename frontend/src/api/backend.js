@@ -1,17 +1,15 @@
-export function getNextStep() {
-  return {
-    soil_moisture: Math.random() * 10,
-    heat_stress: 28,
-    rainfall: 10,
-    crop_stage: "Vegetative",
-    crop_height: Math.random() * 10,
-    irrigation_mm: 15 + Math.random() * 10,
-    explanation: [
-      "Soil moisture is moderate",
-      "Heat stress is increasing",
-      "Rainfall contribution is low",
-      "Crop is in a sensitive growth stage",
-    ],
-  };
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+
+export async function resetSimulation() {
+  const res = await fetch(`${API_URL}/reset`, {
+    method: "POST",
+  });
+  return await res.json();
 }
 
+export async function getNextStep(){
+  const res = await fetch(`${API_URL}/step`,{
+    method: "POST",
+  });
+  return await res.json();
+}

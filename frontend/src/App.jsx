@@ -12,14 +12,13 @@ function App() {
         <nav>
           <Link to="/">Dashboard</Link>
           <Link to="/simulation">Simulation</Link>
-          <Link to="/explanation">Explanation</Link>
+
         </nav>
       </header>
 
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/simulation" element={<Simulation />} />
-        <Route path="/explanation" element={<Explanation />} />
       </Routes>
     </div>
   );
