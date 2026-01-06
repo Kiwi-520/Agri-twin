@@ -1,4 +1,5 @@
 **Version:** v0.1 (Prototype)
+In Progress .......... v0.2
 
 # 🌾 Agri-Twin Backend
 
