@@ -53,7 +53,8 @@ class AgriTwinEnv(gym.Env):
          # Internal (real-world) state
         self.soil_moisture = np.random.uniform(0.3, 0.45)
         self.heat_stress = np.random.uniform(0.0, 0.05)
-        self.rainfall = 0.0
+        self.last_rain = 0.0
+        self.rain_forecast = 0.0
         self.crop_stage = 0.1
 
         observation = np.array([
@@ -78,15 +79,17 @@ class AgriTwinEnv(gym.Env):
             irrigation_mm = float(action)
 
         # self.rainfall = np.random.uniform(0.0, 0.2)
+        self.last_rain = self.rain_forecast
+
         if np.random.rand() < 0.1:
-            self.rainfall = np.random.uniform(0.01, 0.03)
+            self.rain_forecast = np.random.uniform(0.01, 0.03)
         else:
-            self.rainfall = 0.0
+            self.rain_forecast = 0.0
 
         # Simple water balance
         evap_loss = 0.03 + 0.07 * self.heat_stress
         irrigation_normalized = irrigation_mm / self.MAX_IRRIGATION_MM
-        self.soil_moisture += irrigation_normalized + self.rainfall - evap_loss
+        self.soil_moisture += irrigation_normalized + self.last_rain - evap_loss
         # Clamp soil moisture betweeen [0,1]
         self.soil_moisture = np.clip(self.soil_moisture, 0.0, 1.0)
 
@@ -139,8 +142,6 @@ class AgriTwinEnv(gym.Env):
         reward_soil = -abs(self.soil_moisture - 0.5) * 0.5
         # total reward
         reward = reward_growth + reward_stress + reward_water + reward_soil
-        if self.soil_moisture < 0.4:
-            reward += 0.2
 
 
         # Terminated
@@ -150,7 +151,8 @@ class AgriTwinEnv(gym.Env):
         observation = np.array([
             self.soil_moisture,
             self.heat_stress,
-            self.rainfall,
+            self.last_rain,
+            self.rain_forecast,
             self.crop_stage
         ], dtype = np.float32)
 

@@ -1,12 +1,12 @@
 def explain_irrigation(obs, action):
-    soil, heat, rain, crop = obs
+    soil, heat, rain_forecast, crop = obs
     reasons = []
 
     if soil < 0.5:
         reasons.append("Soil low → irrigate more")
     if heat > 0.3:
         reasons.append("Heat stress high → irrigate to cool")
-    if rain > 0.05:
+    if rain_forecast > 0.05:
         reasons.append("Rain predicted → irrigate less")
     if crop > 0.6:
         reasons.append("Crop nearing maturity → moderate irrigation")
