@@ -38,18 +38,18 @@ class AgriTwinEnv(gym.Env):
             dtype = np.float32
         )
 
-        self.max_steps = 60
+        self.max_steps = 80
         self.current_step = 0
 
         # Internal (real-world) state
         self.reset(seed = None)
 
-    
+
 
     def reset(self, *, seed=None, options = None):
         super().reset(seed = seed)
         self.current_step = 0
-        
+
          # Internal (real-world) state
         self.soil_moisture = np.random.uniform(0.3, 0.45)
         self.heat_stress = np.random.uniform(0.0, 0.05)
@@ -60,7 +60,7 @@ class AgriTwinEnv(gym.Env):
             self.soil_moisture,
             self.heat_stress,
             self.rainfall,
-            self.crop_stage 
+            self.crop_stage
         ], dtype = np.float32)
 
 
@@ -76,7 +76,7 @@ class AgriTwinEnv(gym.Env):
             irrigation_mm = float(action[0])
         else:
             irrigation_mm = float(action)
-            
+
         # self.rainfall = np.random.uniform(0.0, 0.2)
         if np.random.rand() < 0.1:
             self.rainfall = np.random.uniform(0.01, 0.03)
@@ -85,7 +85,7 @@ class AgriTwinEnv(gym.Env):
 
         # Simple water balance
         evap_loss = 0.03 + 0.07 * self.heat_stress
-        irrigation_normalized = irrigation_mm / self.MAX_IRRIGATION_MM 
+        irrigation_normalized = irrigation_mm / self.MAX_IRRIGATION_MM
         self.soil_moisture += irrigation_normalized + self.rainfall - evap_loss
         # Clamp soil moisture betweeen [0,1]
         self.soil_moisture = np.clip(self.soil_moisture, 0.0, 1.0)
@@ -123,25 +123,25 @@ class AgriTwinEnv(gym.Env):
         #     growth_rate = 0.0
         # else:
         #     growth_rate = 0.02 * (1.0 - self.heat_stress)
-        growth_rate = 0.01 * (1.0 - self.heat_stress)
-            
+        growth_rate = 0.015 * (1.0 - self.heat_stress)
+
         self.crop_stage += growth_rate
         self.crop_stage = np.clip(self.crop_stage, 0.0, 1.0)
 
-        # Reward Shaping 
+        # Reward Shaping
 
         # growth reward
         reward_growth = growth_rate * 50.0
         # heat stress reward
         reward_stress = - self.heat_stress * 5.0
-        # water reward 
+        # water reward
         reward_water = - (irrigation_mm/ self.MAX_IRRIGATION_MM) * 0.3
         reward_soil = -abs(self.soil_moisture - 0.5) * 0.5
         # total reward
         reward = reward_growth + reward_stress + reward_water + reward_soil
         if self.soil_moisture < 0.4:
             reward += 0.2
-  
+
 
         # Terminated
         terminated = self.crop_stage >= 1.0
@@ -151,7 +151,7 @@ class AgriTwinEnv(gym.Env):
             self.soil_moisture,
             self.heat_stress,
             self.rainfall,
-            self.crop_stage 
+            self.crop_stage
         ], dtype = np.float32)
 
         info = {
@@ -163,5 +163,4 @@ class AgriTwinEnv(gym.Env):
         }
 
         return observation, reward, terminated, truncated, info
-    
-    
+
