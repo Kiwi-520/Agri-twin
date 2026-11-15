@@ -3,6 +3,8 @@ from stable_baselines3 import PPO
 import numpy as np
 from dataclasses import feild, dataclass
 import uuid
+import os
+from fastapi import HTTPException
 
 from backend.rl.agritwin_env import AgriTwinEnv
 from backend.rl.fertilizer_advisory import fertilizer_advisory
@@ -50,60 +52,35 @@ def reset_simulation(session_id: str = None):
 
 @app.post("/step")
 def step_stimulation(session_id: str):
-    session = sessions[session_id]
-    action, _= model.predict(
-        obs,
-        deterministic = True
-    )
-    obs, reward, terminated, truncated, info = session.env.step(action)
+    try:
+        if session_id not in sessions:
+            raise HTTPException(
+                status_code=404,
+                detail="Session not found...."
+            )
+        session = sessions[session_id]
+        action, _= model.predict(
+            obs,
+            deterministic = True
+        )
+        obs, reward, terminated, truncated, info = session.env.step(action)
 
-    session.obs = obs
+        session.obs = obs
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 env = AgriTwinEnv()
+
+MODEL_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "../model/ppo_agritwin_demo_v4"
+)
 model = PPO.load(
-    "backend/models/ppo_agritwin_demo_v4",
+    MODEL_PATH,
     env = env
 )
-
-obs, _ = env.reset(seed = None)
-
-@app.post("/reset")
-def reset_simulation():
-    global obs
-    obs, _ = env.reset()
-
-    return{
-        "soil_moisture": float(obs[0]),
-        "heat_stress": float(obs[1]),
-        "rainfall": float(obs[2]),
-        "crop_stage": float(obs[3]),
-    }
-
-@app.post("/step")
-def step_simulation():
-    global obs
-
-    action, _= model.predict(obs, deterministic = True)
-
-    obs, reward, terminated, truncated, info = env.step(action)
-
-    fertilizer_info = fertilizer_advisory(
-        soil_moisture=obs[0],
-        heat_stress=obs[1],
-        crop_stage=obs[3]
-    )
-
-    irrigation_reason = explain_irrigation(obs, action)
-
-    return{
-        "soil_moisture": float(obs[0]),
-        "heat_stress": float(obs[1]),
-        "rainfall": float(obs[2]),
-        "crop_stage": float(obs[3]),
-        "irrigation_mm": float(action[0]),
-        "reward": float(reward),
-        "fertilizer": fertilizer_info["fertilizer"],
-        "fertilizer_reason": fertilizer_info["reason"],
-        "irrigation_reason": irrigation_reason,
-        "done": bool(terminated or truncated)
-    }
